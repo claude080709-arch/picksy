@@ -2,7 +2,7 @@
 
 **두 선택지를 비교해서 내 취향에 더 맞는 쪽을 찾아주는 AI 의사결정 도우미**
 
-🔗 **[picksys.netlify.app](https://picksys.netlify.app/)**
+🔗 **https://picksy-kohl.vercel.app/**
 
 ---
 
@@ -31,4 +31,5 @@
 - React 18 (CDN)
 - Tailwind CSS (CDN)
 - Groq API (llama-3.3-70b-versatile)
+
 - Netlify Functions
