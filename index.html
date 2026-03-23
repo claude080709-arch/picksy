@@ -91,6 +91,13 @@
             const [showDetails, setShowDetails] = useState(false);
             const [persona, setPersona] = useState('analyst');
             const [weights, setWeights] = useState({}); // factorName → 1,2,3
+            const [fromUrl, setFromUrl] = useState(false); // 수정됨: URL 복원 여부 추적
+            const [toast, setToast] = useState(""); // 수정됨: alert() 대체 토스트
+
+            const showToast = (msg) => { // 수정됨
+                setToast(msg);
+                setTimeout(() => setToast(""), 2500);
+            };
 
             // URL 파라미터로 결과 복원 // 수정됨
             useEffect(() => {
@@ -109,6 +116,7 @@
                         setOptionA(decodedA);
                         setOptionB(decodedB);
                         setResult({ scoreA, scoreB, winner, details: [] });
+                        setFromUrl(true); // 수정됨
                         setStep(4);
                     }
                 }
@@ -370,6 +378,12 @@ winner는 이 기준에서 객관적으로 더 높은(우세한) 선택지.
 
             return (
                 <div className="min-h-screen flex flex-col p-6 relative bg-[#050505] text-white font-sans selection:bg-blue-500/30" style={{overflowX:"hidden", overflowY:"auto", WebkitOverflowScrolling:"touch"}}>
+                {/* 수정됨: 토스트 알림 */}
+                {toast && (
+                    <div style={{position:'fixed',bottom:'24px',left:'50%',transform:'translateX(-50%)',zIndex:999,background:'#1a1a1a',border:'1px solid rgba(255,255,255,0.1)',color:'#e5e5e5',padding:'12px 20px',borderRadius:'12px',fontSize:'13px',whiteSpace:'nowrap',pointerEvents:'none'}}>
+                        {toast}
+                    </div>
+                )}
                     <div className="fixed inset-0 overflow-hidden pointer-events-none" style={{zIndex:0}}>
                         <div className="absolute top-[-20%] left-[-10%] w-[50vw] h-[50vw] bg-blue-900/10 rounded-full blur-[120px] animate-pulse" style={{ animationDuration: '8s' }} />
                         <div className="absolute bottom-[-20%] right-[-10%] w-[50vw] h-[50vw] bg-purple-900/10 rounded-full blur-[120px] animate-pulse" style={{ animationDuration: '10s', animationDelay: '1s' }} />
@@ -578,9 +592,12 @@ winner는 이 기준에서 객관적으로 더 높은(우세한) 선택지.
                                     <button onClick={reset} className="flex-1 px-6 py-4 rounded-3xl border border-white/10 hover:bg-white/5 text-gray-400 hover:text-white transition-colors flex flex-col items-center justify-center gap-2 font-medium">
                                         <Icons.RefreshCw className="w-5 h-5 mb-1" /> <span>다시 시작</span>
                                     </button>
-                                    <button onClick={() => setShowDetails(!showDetails)} className="flex-1 px-6 py-4 rounded-3xl bg-white/10 hover:bg-white/20 text-white backdrop-blur-md transition-colors flex flex-col items-center justify-center gap-2 font-medium border border-white/5">
-                                        <Icons.BarChart2 className="w-5 h-5 mb-1" /> <span className="leading-tight text-center">{showDetails ? "간략히\n보기" : "상세분석\n보기"}</span>
-                                    </button>
+                                    {/* 수정됨: URL 복원 시 상세분석 숨김 (details 데이터 없음) */}
+                                    {!fromUrl && (
+                                        <button onClick={() => setShowDetails(!showDetails)} className="flex-1 px-6 py-4 rounded-3xl bg-white/10 hover:bg-white/20 text-white backdrop-blur-md transition-colors flex flex-col items-center justify-center gap-2 font-medium border border-white/5">
+                                            <Icons.BarChart2 className="w-5 h-5 mb-1" /> <span className="leading-tight text-center">{showDetails ? "간략히\n보기" : "상세분석\n보기"}</span>
+                                        </button>
+                                    )}
                                 </div>
                                 {showDetails && (
                                     <div className="w-full max-w-4xl overflow-hidden animate-fade-in">
@@ -667,7 +684,7 @@ winner는 이 기준에서 객관적으로 더 높은(우세한) 선택지.
                                                     });
                                                     const shareUrl = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
                                                     navigator.clipboard.writeText(shareUrl);
-                                                    alert('링크가 복사됐어요! 이 링크로 결과를 바로 볼 수 있어요.');
+                                                    showToast('링크 복사됨 — 이 링크로 결과를 바로 볼 수 있어요'); // 수정됨: alert → 토스트
                                                 }} className="px-8 py-4 rounded-full bg-white text-black hover:bg-gray-200 transition-colors flex items-center justify-center gap-2 font-bold text-lg shadow-[0_0_30px_rgba(255,255,255,0.2)]">
                                                     <Icons.Share2 className="w-5 h-5" /> 결과 공유하기
                                                 </button>
