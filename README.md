@@ -32,4 +32,4 @@
 - Tailwind CSS (CDN)
 - Groq API (llama-3.3-70b-versatile)
 
-- Netlify Functions
+- Vercel Functions

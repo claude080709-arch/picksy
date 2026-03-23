@@ -92,6 +92,28 @@
             const [persona, setPersona] = useState('analyst');
             const [weights, setWeights] = useState({}); // factorName → 1,2,3
 
+            // URL 파라미터로 결과 복원 // 수정됨
+            useEffect(() => {
+                const params = new URLSearchParams(window.location.search);
+                const a = params.get('a');
+                const b = params.get('b');
+                const r = params.get('result');
+                if (a && b && r) {
+                    const match = r.match(/A:(\d+),B:(\d+)/);
+                    if (match) {
+                        const decodedA = decodeURIComponent(a);
+                        const decodedB = decodeURIComponent(b);
+                        const scoreA = parseInt(match[1]);
+                        const scoreB = parseInt(match[2]);
+                        const winner = scoreA >= scoreB ? decodedA : decodedB;
+                        setOptionA(decodedA);
+                        setOptionB(decodedB);
+                        setResult({ scoreA, scoreB, winner, details: [] });
+                        setStep(4);
+                    }
+                }
+            }, []);
+
             useEffect(() => {
                 if (step !== 4 || !result) return;
                 const target = result.winner === optionA ? result.scoreA : result.scoreB;
@@ -637,11 +659,15 @@ winner는 이 기준에서 객관적으로 더 높은(우세한) 선택지.
                                                 </div>
                                             </div>
                                             <div className="pt-8 border-t border-white/10 flex justify-center">
-                                                <button onClick={() => {
-                                                    const score = result.winner === optionA ? result.scoreA : result.scoreB;
-                                                    const text = `${optionA} vs ${optionB} 중에 고민했는데, 내 취향엔 "${result.winner}"가 ${score}% 더 맞더라.\n\nPicksy에서 너도 해봐 → ${window.location.href}`;
-                                                    navigator.clipboard.writeText(text);
-                                                    alert('복사됐어요. 붙여넣기로 공유해보세요.');
+                                                <button onClick={() => { // 수정됨
+                                                    const params = new URLSearchParams({
+                                                        a: optionA,
+                                                        b: optionB,
+                                                        result: `A:${result.scoreA},B:${result.scoreB}`
+                                                    });
+                                                    const shareUrl = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+                                                    navigator.clipboard.writeText(shareUrl);
+                                                    alert('링크가 복사됐어요! 이 링크로 결과를 바로 볼 수 있어요.');
                                                 }} className="px-8 py-4 rounded-full bg-white text-black hover:bg-gray-200 transition-colors flex items-center justify-center gap-2 font-bold text-lg shadow-[0_0_30px_rgba(255,255,255,0.2)]">
                                                     <Icons.Share2 className="w-5 h-5" /> 결과 공유하기
                                                 </button>
